@@ -16,18 +16,12 @@ process.env.NOW_URL
 
 var fetch = require('node-fetch');
 var Botkit = require('botkit');
-var firebaseConfig = {
-    apiKey: "AIzaSyA5PHbaSMs2beKDLsUZc9nuLdqJT8QTiDw",
-    authDomain: "yasin-bot.firebaseapp.com",
-    databaseURL: "https://yasin-bot.firebaseio.com",
-    storageBucket: "",
-  };
 var firebaseStorage = require('botkit-storage-firebase')({
   firebase_uri: 'https://yasin-bot.firebaseio.com'
 });
+
 var controller = Botkit.slackbot({
   storage: firebaseStorage,
-  // debug:true
 });
 
 var bot = controller.spawn({
@@ -40,7 +34,6 @@ bot.startRTM(function(error, whichBot, payload) {
   }
 });
 
-
 //Get Names of All Users
 bot.api.users.list({},function(err,response) {
   obj = response.members;
@@ -50,44 +43,6 @@ bot.api.users.list({},function(err,response) {
   });
 });
 
-
-// controller.hears(['hello'], ['direct_message','direct_mention','mention','ambient'], function(whichBot, message) {
-//   whichBot.reply(message, 'Did you say my name?');
-// });
-
-// controller.on('ambient', function(bot, message) {
-//     bot.reply(message,{
-//       text: "I'm a hungry panda",
-//       username: "Panda Luigi",
-//       icon_emoji: ":panda_face:"
-//     });
-// });
-
-// var approves = {
-//   pizza: "fuck yes",
-// };
-
-// Test DB
-var approveDB = {
-  id: 'approvals',
-  items: {
-  }
-};
-
-// TODO: Setup an init that creates the firebase DB
-// if (getDB() ==)
-
-function getDB () {
-  controller.storage.teams.get('approvals', function(err,user_data) {
-    approveDB.items = user_data.items;
-  });
-}
-
-// var makeDB = new Promise(function(resolve, reject) {
-//   controller.storage.teams.get('make', function(err,user_data) {
-//     return user_data;
-//   });
-// });
 
 // Name and setup database for approvals
 var dbName = 'approvals';
@@ -112,53 +67,27 @@ function createDB(id) {
   controller.storage.teams.save(database);
 }
 
+// Get content of database from FireBase or create new database
 get(dbName).then(function(user_data) {
-  console.log("Success");
   dbContent = user_data;
-  console.log(dbContent);
+  console.log("Success", dbContent);
 }, function(error){
   console.error("Failed", error);
   console.log("Creating new database for ", dbName);
   createDB(dbName);
 });
 
+function updateDB(database){
+  controller.storage.teams.save(database);
+}
 
-
-
-
-// var makeDB = controller.storage.teams.get('make', function(err,user_data) {
-//   console.log(user_data);
-//   return user_data;
-//
-// });
-
-// if (makeDB === null) {
-//   console.log('it is null');
-// }
-
-// if user_data = null create database
-
-// console.log(makeDB);
-
-
-// console.log(approveDB);
-
-
-//
-// Get firebase DB
-// User asks Does Yasin approve of cakes
-// Bot conversation is started
-// Look inside firebase DB object
-// If item is in DB object reply with value
-// If item not in DB
-
+//Start Bot Controller
 controller.hears('Does Yasin approve of (.*)',['ambient'], function(bot, message) {
-  getDB();
   var item = message.match[1];
 
   bot.startConversation(message,function(err,convo) {
 
-    if (!(approveDB.items[item])) {
+    if (!(dbContent.items[item])) {
 
       var requestURL = 'http://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=' + item;
 
@@ -187,10 +116,10 @@ controller.hears('Does Yasin approve of (.*)',['ambient'], function(bot, message
             pattern: bot.utterances.yes,
             callback: function(response,convo) {
               convo.ask('Great! What does Yasin think of ' + item + '?', function(message,convo) {
-                  // TODO: Figure out how to save this new approval out to a variable, then push that to firebase once the conversation is over
-                  approves[item] = message.text;
-                  console.log(approves);
-                  convo.say('All added!');
+                  dbContent.items[item] = message.text;
+                  updateDB(dbContent);
+                  console.log('database updated');
+                  convo.say(message.text + '! ' + item + ' has been added!');
                   convo.next();
                 });
               convo.next();
@@ -219,13 +148,10 @@ controller.hears('Does Yasin approve of (.*)',['ambient'], function(bot, message
 
 
     } else {
-      bot.reply(message, approveDB.items[item]);
+      bot.reply(message, dbContent.items[item]);
       convo.stop();
     }
 
   });
-
-
-
 
 });
