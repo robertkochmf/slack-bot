@@ -10,6 +10,10 @@
   "license": "ISC",
   "dependencies": {
     "botkit": "^0.2.0",
-    "dotenv": "^2.0.0"
+    "dotenv": "^2.0.0",
+    "node-fetch": "^1.5.3"
+  },
+  "devDependencies": {
+    "botkit-storage-firebase": "^1.0.0"
   }
 }
