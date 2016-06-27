@@ -43,7 +43,6 @@ bot.api.users.list({},function(err,response) {
   });
 });
 
-
 // Name and setup database for approvals
 var dbName = 'approvals';
 var dbContent;
@@ -63,7 +62,7 @@ function get(key) {
 
 // Create new FireBase database
 function createDB(id) {
-  database = {id: id,items: {0: '0'}};
+  database = {id: id,items: {init: 'init'}};
   controller.storage.teams.save(database);
 }
 
@@ -79,6 +78,11 @@ get(dbName).then(function(user_data) {
 
 function updateDB(database){
   controller.storage.teams.save(database);
+}
+
+// Utility: Capitalise first letter
+function capitaliseFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 //Start Bot Controller
@@ -99,10 +103,10 @@ controller.hears('Does Yasin approve of (.*)',['ambient'], function(bot, message
         var gifURL = json.data.image_url;
 
         bot.reply(message, {
-          text: 'Yasin does not approve of ' + item,
+          text: 'Yasin does not approve of ' + '*' + item + '*' + '!',
           attachments : [
             {
-              title: 'Yasin Dissaproves',
+              title: 'Yasin dissaproves!',
               image_url: gifURL
             }
           ]
@@ -111,27 +115,25 @@ controller.hears('Does Yasin approve of (.*)',['ambient'], function(bot, message
       });
 
       setTimeout(function () {
-        convo.ask('Would you like to add ' + item + '?',[
+        convo.ask('Would you like to add ' + '*' + item + '*' + ' to Yasin\'s approval list?',[
           {
             pattern: bot.utterances.yes,
             callback: function(response,convo) {
-              convo.ask('Great! What does Yasin think of ' + item + '?', function(message,convo) {
+              convo.ask('Great! What does Yasin think of ' + '*' + item + '*' + '?', function(message,convo) {
                   dbContent.items[item] = message.text;
                   updateDB(dbContent);
                   console.log('database updated');
-                  convo.say(message.text + '! ' + item + ' has been added!');
+                  convo.say(capitaliseFirstLetter(message.text) + '! ' + '*' + capitaliseFirstLetter(item) + '*' + ' has been added.');
                   convo.next();
                 });
               convo.next();
             }
-
           },
           {
             pattern: bot.utterances.no,
             callback: function(response,convo) {
               convo.say('Ok! Well perhaps later.');
               convo.next();
-              convo.stop();
             }
           },
           {
@@ -148,7 +150,12 @@ controller.hears('Does Yasin approve of (.*)',['ambient'], function(bot, message
 
 
     } else {
-      bot.reply(message, dbContent.items[item]);
+      // bot.reply(message, dbContent.items[item]);
+      bot.reply(message, {
+        username: 'YasinBot',
+        text: 'Yasin says: ' + capitaliseFirstLetter(dbContent.items[item]) + '!',
+        icon_emoji: ":metal:"
+      });
       convo.stop();
     }
 
