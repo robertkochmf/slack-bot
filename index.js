@@ -28,7 +28,7 @@ var bot = controller.spawn({
   token: process.env.SLACKBOT_TOKEN
 });
 
-bot.startRTM(function(error, whichBot, payload) {
+bot.startRTM(function (error, whichBot, payload) {
   if (error) {
     throw new Error('Could not connect to Slack');
   }
@@ -46,6 +46,7 @@ bot.api.users.list({},function(err,response) {
 // Name and setup database for approvals
 var dbName = 'approvals';
 var dbContent;
+
 
 // Check FireBase to see if database already exists
 function get(key) {
@@ -112,9 +113,8 @@ controller.hears('Does Yasin approve of (.*)',['ambient'], function(bot, message
           ]
         });
 
-      });
+      }).then(function() {
 
-      setTimeout(function () {
         convo.ask('Would you like to add ' + '*' + item + '*' + ' to Yasin\'s approval list?',[
           {
             pattern: bot.utterances.yes,
@@ -139,15 +139,13 @@ controller.hears('Does Yasin approve of (.*)',['ambient'], function(bot, message
           {
             default: true,
             callback: function(response,convo) {
-              // just repeat the question
               convo.repeat();
               convo.next();
             }
           }
         ]);
 
-      },3000);
-
+      });
 
     } else {
       // bot.reply(message, dbContent.items[item]);
