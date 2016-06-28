@@ -22,6 +22,7 @@ var firebaseStorage = require('botkit-storage-firebase')({
 
 var controller = Botkit.slackbot({
   storage: firebaseStorage,
+  debug: true
 });
 
 var bot = controller.spawn({
@@ -87,13 +88,14 @@ function capitaliseFirstLetter(string) {
 }
 
 //Start Bot Controller
-controller.hears('Does Yasin approve of (.*)',['ambient'], function(bot, message) {
+controller.hears('Does Yasin approve of (.*)',['direct_message','ambient','direct_mention','mention'], function(bot, message) {
   var item = message.match[1];
 
   bot.startConversation(message,function(err,convo) {
 
     if (!(dbContent.items[item])) {
 
+      //Setup Giphy Request URL
       var requestURL = 'http://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=' + item;
 
       fetch(requestURL).then(function(response) {
@@ -101,6 +103,7 @@ controller.hears('Does Yasin approve of (.*)',['ambient'], function(bot, message
         return response.json();
 
       }).then(function(json) {
+
         var gifURL = json.data.image_url;
 
         bot.reply(message, {
@@ -113,8 +116,9 @@ controller.hears('Does Yasin approve of (.*)',['ambient'], function(bot, message
           ]
         });
 
-      }).then(function() {
+      });
 
+      setTimeout(function() {
         convo.ask('Would you like to add ' + '*' + item + '*' + ' to Yasin\'s approval list?',[
           {
             pattern: bot.utterances.yes,
@@ -144,19 +148,17 @@ controller.hears('Does Yasin approve of (.*)',['ambient'], function(bot, message
             }
           }
         ]);
-
-      });
+      },800);
 
     } else {
-      // bot.reply(message, dbContent.items[item]);
       bot.reply(message, {
-        username: 'YasinBot',
-        text: 'Yasin says: ' + capitaliseFirstLetter(dbContent.items[item]) + '!',
-        icon_emoji: ":metal:"
+        text: 'Yasin says: ' + capitaliseFirstLetter(dbContent.items[item]) + '!'
       });
       convo.stop();
     }
 
   });
+
+
 
 });
