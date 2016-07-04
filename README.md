@@ -4,8 +4,10 @@ This project serves as the first version of Yasin-Bot
 
 The bot allows us to ask Yasin what he approves of:
 
+Ask - Does Yasin approve of (item)
+
 If Yasin approves of something he will give you his response.
-If Yasin disapproves of something he will provide the user with a hilarious GIF about "something", then ask if you would like to add the new item to his approval list. 
+If Yasin disapproves of something he will provide the user with a hilarious GIF about "something", then ask if you would like to add the new item to his approval list.
 
 The tools used include:
 
