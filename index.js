@@ -35,7 +35,7 @@ bot.startRTM(function (error, whichBot, payload) {
   }
 });
 
-//Get Names of All Users
+//Get Names of All Users. I didn't have a need to use this data.
 bot.api.users.list({},function(err,response) {
   obj = response.members;
   var names = Object.keys(obj).map(function (key) {
@@ -110,7 +110,7 @@ controller.hears('Does Yasin approve of (.*)',['direct_message','ambient','direc
           text: 'Yasin does not approve of ' + '*' + item + '*' + '!',
           attachments : [
             {
-              title: 'Yasin dissaproves!',
+              title: 'Yasin disapproves!',
               image_url: gifURL
             }
           ]
@@ -148,7 +148,8 @@ controller.hears('Does Yasin approve of (.*)',['direct_message','ambient','direc
             }
           }
         ]);
-      },800);
+
+      },4000);
 
     } else {
       bot.reply(message, {

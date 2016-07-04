@@ -1,6 +1,11 @@
-# My First Slackbot
+# Yasin-Bot
 
-This project serves as a base to start creating a slackbot.
+This project serves as the first version of Yasin-Bot
+
+The bot allows us to ask Yasin what he approves of:
+
+If Yasin approves of something he will give you his response.
+If Yasin disapproves of something he will provide the user with a hilarious GIF about "something", then ask if you would like to add the new item to his approval list. 
 
 The tools used include:
 
@@ -93,10 +98,10 @@ basic of which is [Real Time Messaging](http://api.slack.com/rtm) (aka, RTM).
 > events from Slack in real time and send messages as a user. It is the basis for
 > all Slack clients. It's also commonly used with the bot user integration to
 > create helper bots for your team.
-> 
+>
 > [Slack] will provide a stream of events, including both messages and updates to
 > the current state of the team.
-> 
+>
 > Almost everything that happens in Slack will result in an event being sent [...]
 > The simplest event is a message sent from a user:
 
@@ -124,7 +129,7 @@ our bot to listen for keywords, commands, etc.
 
 Botkit provides a very useful function `.hears()` that allows our bot to
 optionally listen for different message types. 3 useful ones are:
-  
+
 * `mention`: When someone uses your bot's name anywhere in their message
   * > Jess: Hey everyone, check out @awesomebot my new bot!
 * `direct_mention`: When someone starts their message with your bot's name
